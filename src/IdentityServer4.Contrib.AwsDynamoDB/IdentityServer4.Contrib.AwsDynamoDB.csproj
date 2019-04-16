@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>0.0.7</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Identity Server 4 Persistance Storage with AWS DynamoDB</Description>
 

@@ -84,9 +84,10 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Repositories
             {
                 using (var context = new DynamoDBContext(client, ddbConfig))
                 {
-                    var data = await context.QueryAsync<PersistedGrantDynamoDB>(key).GetRemainingAsync();
-                    if(data.Any()){
-                        result = data.First().GetPersistedGrant();
+                    var data = await context.LoadAsync<PersistedGrantDynamoDB>(key);
+                    if (data != null)
+                    {
+                        result = data.GetPersistedGrant();
                     }
                 }
             }
@@ -219,10 +220,10 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Repositories
                 using (var context = new DynamoDBContext(client, ddbConfig))
                 {
                     // find object first
-                    var batch = await context.QueryAsync<PersistedGrantDynamoDB>(key).GetRemainingAsync();
+                    var grant = await context.LoadAsync<PersistedGrantDynamoDB>(key);
 
-                    if(batch.Any()){
-                        await context.DeleteAsync(batch.First());
+                    if(grant != null){
+                        await context.DeleteAsync(grant);
                     }
                     else{
                         await Task.FromResult(0);

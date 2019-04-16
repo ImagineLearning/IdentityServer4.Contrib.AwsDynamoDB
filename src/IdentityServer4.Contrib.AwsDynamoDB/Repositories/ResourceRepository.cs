@@ -55,8 +55,8 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Repositories
             {
                 using(var context = new DynamoDBContext(client, ddbConfig))
                 {
-                    var dataset = await context.QueryAsync<ApiResourceDynamoDB>(name).GetRemainingAsync();
-                    response = dataset?.First()?.GetApiResource();
+                    var dataset = await context.LoadAsync<ApiResourceDynamoDB>(name);
+                    response = dataset.GetApiResource();
                 }
             }
             catch(Exception ex)
@@ -169,9 +169,9 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Repositories
                 using (var context = new DynamoDBContext(client, ddbConfig))
                 {
                     foreach(var sn in scopeNames){
-                        var dataset = await context.QueryAsync<IdentityResourceDynamoDB>(sn).GetRemainingAsync();   
-                        if(dataset.Any()){
-                            response.AddRange(dataset.Select(item => item.GetIdentityResource()));
+                        var dataset = await context.LoadAsync<IdentityResourceDynamoDB>(sn);   
+                        if(dataset != null){
+                            response.Add(dataset.GetIdentityResource());
                         }
                     }
                 }

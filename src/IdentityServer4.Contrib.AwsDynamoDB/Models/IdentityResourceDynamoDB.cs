@@ -17,7 +17,6 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Models
         /// Gets or sets the json serialized IdentityResource object.
         /// </summary>
         /// <value>The json string.</value>
-        [DynamoDBProperty]
         public string JsonString { get; set; }
     }
 }

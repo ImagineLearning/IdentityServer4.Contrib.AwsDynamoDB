@@ -52,11 +52,8 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Repositories
             {
                 using (var context = new DynamoDBContext(client, ddbConfig))
                 {
-                    var batch = context.QueryAsync<ClientDynamoDB>(clientId);
-
-                    var dataset = await batch.GetRemainingAsync();
-
-                    response = dataset?.First().GetClient();
+                    var client = await context.LoadAsync<ClientDynamoDB>(clientId);
+                    response = client.GetClient();
                 }
             }
             catch (Exception ex)

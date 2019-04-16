@@ -13,13 +13,10 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Models
         [DynamoDBHashKey]
         public string Key { get; set; }
 
-        [DynamoDBProperty]
         public string ClientId { get; set; }
 
-        [DynamoDBProperty]
         public string SubjectId { get; set; }
 
-        [DynamoDBProperty]
         public string Type { get; set; }
 
         /// <summary>
@@ -27,7 +24,6 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Models
         /// DateTime to UnixEpoch in seconds represented as a string
         /// </summary>
         /// <value>The creation time.</value>
-        [DynamoDBProperty]
         public int CreationTime { get; set; }
 
         /// <summary>
@@ -35,10 +31,8 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Models
         /// DateTime to UnixEpoch in seconds represented as a string
         /// </summary>
         /// <value>The expiration.</value>
-        [DynamoDBProperty]
         public int Expiration { get; set; }
 
-        [DynamoDBProperty]
         public string Data { get; set; }
     }
 }

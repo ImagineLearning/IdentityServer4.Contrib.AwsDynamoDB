@@ -3,10 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using IdentityServer4.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IdentityServer4.Contrib.AwsDynamoDB.Models.Extensions
 {
@@ -15,6 +18,9 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Models.Extensions
     /// </summary>
     public static class ClientDynamoDBExtensions
     {
+        //This claim converter will be used to make it so that Claims can be deserialized
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings(){Converters = new List<JsonConverter>(){new ClaimConverter()}};
+
         /// <summary>
         /// Gets the client.
         /// </summary>
@@ -24,7 +30,7 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Models.Extensions
         {
             if (cd == null) return null;
 
-            return JsonConvert.DeserializeObject<Client>(cd.JsonString);
+            return JsonConvert.DeserializeObject<Client>(cd.JsonString, _settings);
         }
 
         /// <summary>
@@ -65,6 +71,61 @@ namespace IdentityServer4.Contrib.AwsDynamoDB.Models.Extensions
             if (cd == null || cd.Count() == 0) return null;
 
             return cd.Select(item => item.GetClientDynamoDB());
+        }
+    }
+
+    /// <summary>
+    /// Custom converter for claims objects which have no default constructor
+    /// </summary>
+    public class ClaimConverter : JsonConverter
+    {
+        /// <summary>
+        /// Can Convert
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <returns></returns>
+        public override bool CanConvert(Type objectType)
+        {
+            return (objectType == typeof(System.Security.Claims.Claim));
+        }
+
+        /// <summary>
+        /// Method to manually construct a claim object in a the full constructor
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="objectType"></param>
+        /// <param name="existingValue"></param>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            JObject jo = JObject.Load(reader);
+            string type = (string)jo["Type"];
+            string value = (string)jo["Value"];
+            string valueType = (string)jo["ValueType"];
+            string issuer = (string)jo["Issuer"];
+            string originalIssuer = (string)jo["OriginalIssuer"];
+            return new Claim(type, value, valueType, issuer, originalIssuer);
+        }
+
+        /// <summary>
+        /// Can Write
+        /// </summary>
+        /// <value></value>
+        public override bool CanWrite
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Write JSON
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="value"></param>
+        /// <param name="serializer"></param>
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
         }
     }
 }
